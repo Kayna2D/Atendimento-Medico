@@ -45,8 +45,6 @@ void cadastrar(Lista *lista) {
     Registro *novo_registro = malloc(sizeof(Registro));
     Data *nova_data = malloc(sizeof(Data));
 
-    printf("\nCadastro de Novo Paciente\n");
-
     printf("Digite o nome: ");
     fgets(novo_registro->nome, sizeof(novo_registro->nome), stdin);
     novo_registro->nome[strcspn(novo_registro->nome, "\n")] = '\0';
@@ -144,6 +142,59 @@ void mostrar_lista(Lista *lista){
     printf("\n");
 }
 
+void atualizar_paciente(Lista *lista) {
+    if (lista->inicio == NULL) {
+        printf("\nNao ha paciente cadastrado.\n");
+        return;
+    }
+
+    Elista *paciente = encontrar_celula(lista);
+
+    char novo_nome[100];
+    int nova_idade;
+    char novo_rg[15];
+    int novo_dia;
+    int novo_mes;
+    int novo_ano;
+
+    if (paciente == NULL) {
+      return;  
+    }
+    
+    printf("Digite o novo nome: ");
+    fgets(novo_nome, sizeof(novo_nome), stdin);
+    novo_nome[strcspn(novo_nome, "\n")] = '\0';
+    printf("Digite a nova idade: ");
+    scanf("%d", &nova_idade);
+    clearBuffer();
+    do {
+        printf("Digite o novo RG (apenas numeros): ");
+        fgets(novo_rg, sizeof(novo_rg), stdin);
+        novo_rg[strcspn(novo_rg, "\n")] = '\0';
+        if (strlen(novo_rg) != 9)
+          printf("RG invalido.\n");
+      } while (strlen(novo_rg) != 9);
+    printf("Digite o novo dia de entrada: ");
+    scanf("%d", &novo_dia);
+    clearBuffer();
+    printf("Digite o novo mes de entrada: ");
+    scanf("%d", &novo_mes);
+    clearBuffer();
+    printf("Digite o novo ano de entrada: ");
+    scanf("%d", &novo_ano);
+    clearBuffer();
+
+    
+    strcpy(paciente->dados->nome, novo_nome);
+    paciente->dados->idade = nova_idade;
+    strcpy(paciente->dados->rg, novo_rg);
+    paciente->dados->entrada->dia = novo_dia;
+    paciente->dados->entrada->mes = novo_mes;
+    paciente->dados->entrada->ano = novo_ano;
+
+    printf("Paciente atualizado com sucesso!\n");
+}
+
 void menu_cadastro(Lista *lista) {
     int opcao = 0;
 
@@ -174,7 +225,7 @@ void menu_cadastro(Lista *lista) {
                 mostrar_lista(lista);
                 break;
             case 4:
-                printf("Atualizar\n");
+                atualizar_paciente(lista);
                 break;
             case 5:
                 printf("Remover\n");
