@@ -46,8 +46,22 @@ typedef struct {
     int qtde;
 } Heap;
 
+typedef enum {
+    ENFILEIRAMENTO,
+    DESENFILEIRAMENTO
+} Tipo_Operacao;
 
+typedef struct Epilha {
+    struct Epilha* anterior;
+    Registro* dados;
+    Tipo_Operacao operacao;
+    struct Epilha* proximo;
+} Epilha;
 
+typedef struct {
+    Epilha* topo;
+    int qtde;
+} Pilha;
 
 Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
@@ -69,6 +83,13 @@ Heap *criar_heap(){
     heap->dados[0] = NULL;
     heap->qtde = 0;
     return heap;
+}
+
+Pilha *criar_pilha(){
+    Pilha *pilha = malloc(sizeof(Pilha));
+    pilha->topo = NULL;
+    pilha->qtde = 0;
+    return pilha;
 }
 
 // Cadastro
@@ -527,7 +548,7 @@ void menu_prioritario(Lista *lista, Heap *heap) {
 
     do {
         printf("\n");
-        printf("Atendimento prioritario\n");
+        printf("Atendimento Prioritario\n");
         printf("\n");
         printf("1 - Enfileirar paciente\n");
         printf("2 - Desenfileirar paciente\n");
@@ -561,10 +582,47 @@ void menu_prioritario(Lista *lista, Heap *heap) {
     return;
 }
 
+// Desfazer
+void menu_desfazer(Fila *fila, Pilha *pilha) {
+    int opcao = 0;
+
+    do {
+        printf("\n");
+        printf("Desfazer Operacao\n");
+        printf("\n");
+        printf("1 - Mostrar operacoes\n");
+        printf("2 - Desfazer operacao\n");
+        printf("0 - Voltar\n");
+        printf("\n");
+        printf("Escolha uma opcao: ");
+
+        scanf("%d", &opcao);
+        clearBuffer();
+
+        switch (opcao) {
+            case 1:
+                printf("Mostrar\n");
+                break;
+            case 2:
+                printf("Desfazer\n");
+                break;
+            case 0:
+                printf("Voltando...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                break;
+        }
+        
+    } while (opcao != 0);
+    return;
+}
+
 int main() {
     Lista *lista = criar_lista();
     Fila *fila = criar_fila();
     Heap *heap = criar_heap();
+    Pilha *pilha = criar_pilha();
     int opcao = 0;
 
     do {
@@ -599,7 +657,7 @@ int main() {
                 printf("Pesquisa\n");
                 break;
             case 5:
-                printf("Desfazer\n");
+                menu_desfazer(fila, pilha);
                 break;
             case 6:
                 printf("C/S\n");
