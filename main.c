@@ -195,6 +195,49 @@ void atualizar_paciente(Lista *lista) {
     printf("Paciente atualizado com sucesso!\n");
 }
 
+void remover_paciente(Lista *lista) {
+    if (lista->inicio == NULL) {
+        printf("Nao ha paciente cadastrado.\n");
+        return;
+    }
+
+    Elista *anterior = NULL;
+    Elista *atual = lista->inicio;
+    char rg[15];
+
+    do {
+        printf("Digite o RG (apenas numeros): ");
+        fgets(rg, sizeof(rg), stdin);
+        rg[strcspn(rg, "\n")] = '\0';
+        if (strlen(rg) != 9)
+          printf("RG invalido.\n");
+      } while (strlen(rg) != 9);
+
+    while (atual != NULL) {
+        if (strcmp(atual->dados->rg, rg) == 0) {
+            if (anterior == NULL) {
+                lista->inicio = atual->proximo;
+                break;
+            } else {
+                anterior->proximo = atual->proximo;
+                break;
+            }
+        }
+        anterior = atual;
+        atual = atual->proximo;
+    }
+
+    if (atual == NULL) {
+        printf("Paciente nao encontrado.\n");
+        return;
+    }
+
+    free(atual);
+    lista->qtde--;
+    printf("Paciente removido com sucesso!");
+    return;
+}
+
 void menu_cadastro(Lista *lista) {
     int opcao = 0;
 
@@ -228,7 +271,7 @@ void menu_cadastro(Lista *lista) {
                 atualizar_paciente(lista);
                 break;
             case 5:
-                printf("Remover\n");
+                remover_paciente(lista);
                 break;
             case 0:
                 printf("Voltando...\n");
