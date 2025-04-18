@@ -30,12 +30,32 @@ typedef struct {
     int qtde;
 } Lista;
 
+typedef struct Efila {
+    Registro* dados;
+    struct Efila* proximo;
+} Efila;
+
+typedef struct {
+    Efila* head;
+    Efila* tail;
+    int qtde;
+} Fila;
+
+
 
 Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
     lista->inicio = NULL;
     lista->qtde = 0;
     return lista;
+}
+
+Fila *criar_fila(){
+    Fila *fila = malloc(sizeof(Fila));
+    fila->head = NULL;
+    fila->tail = NULL;
+    fila->qtde = 0;
+    return fila;
 }
 
 // Cadastro
@@ -234,7 +254,7 @@ void remover_paciente(Lista *lista) {
 
     free(atual);
     lista->qtde--;
-    printf("Paciente removido com sucesso!");
+    printf("Paciente removido com sucesso!\n");
     return;
 }
 
@@ -285,9 +305,50 @@ void menu_cadastro(Lista *lista) {
     return;
 }
 
+// Atendimento
+void menu_atendimento(Lista *lista, Fila *fila) {
+    int opcao = 0;
+
+    do {
+        printf("\n");
+        printf("Atendimento\n");
+        printf("\n");
+        printf("1 - Enfileirar paciente\n");
+        printf("2 - Desenfileirar paciente\n");
+        printf("3 - Mostrar Fila\n");
+        printf("0 - Voltar\n");
+        printf("\n");
+        printf("Escolha uma opcao: ");
+
+        scanf("%d", &opcao);
+        clearBuffer();
+
+        switch (opcao) {
+            case 1:
+                printf("Enfileirar\n");
+                break;
+            case 2:
+                printf("Desenfileirar\n");
+                break;
+            case 3:
+                printf("Mostra fila\n");
+                break;
+            case 0:
+                printf("Voltando...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                break;
+        }
+        
+    } while (opcao != 0);
+    return;
+}
+
 
 int main() {
     Lista *lista = criar_lista();
+    Fila *fila = criar_fila();
     int opcao = 0;
 
     do {
@@ -313,7 +374,7 @@ int main() {
                 menu_cadastro(lista);
                 break;
             case 2:
-                printf("Atendimento\n");
+                menu_atendimento(lista, fila);
                 break;
             case 3:
                 printf("Prioritario\n");
