@@ -306,6 +306,48 @@ void menu_cadastro(Lista *lista) {
 }
 
 // Atendimento
+void enfileirar(Fila *fila, Lista *lista) {
+    if (lista->inicio == NULL) {
+        printf("Nao ha paciente cadastrado.\n");
+        return;
+    }
+
+    Efila *nova = malloc(sizeof(Efila));
+    Elista *paciente = encontrar_celula(lista);
+    nova->dados = paciente->dados;
+    nova->proximo = NULL;
+
+    if (fila->qtde == 0) {
+        fila->head = nova;
+    } else {
+        fila->tail->proximo = nova;
+        //nova->anterior = Queue->tail;
+    }
+    fila->tail = nova;
+    fila->qtde++;
+    printf("Paciente enfileirado com sucesso!");
+}
+
+void mostrar_fila(Fila *fila) {
+    Efila *atual = fila->head;
+    int cont = 1;
+    while (atual != NULL)
+    {
+        printf("\n%d: Nome: %s\t", cont, atual->dados->nome);
+        printf("Idade: %d\t", atual->dados->idade);
+        printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", atual->dados->rg[0], atual->dados->rg[1], 
+        atual->dados->rg[2], atual->dados->rg[3], atual->dados->rg[4],
+        atual->dados->rg[5], atual->dados->rg[6], atual->dados->rg[7],
+        atual->dados->rg[8]);
+        printf("Data de entrada: %d/%d/%d", atual->dados->entrada->dia, atual->dados->entrada->mes, 
+        atual->dados->entrada->ano);
+
+        atual = atual->proximo;
+        cont++;
+    }
+    printf("\n");
+}
+
 void menu_atendimento(Lista *lista, Fila *fila) {
     int opcao = 0;
 
@@ -325,13 +367,13 @@ void menu_atendimento(Lista *lista, Fila *fila) {
 
         switch (opcao) {
             case 1:
-                printf("Enfileirar\n");
+                enfileirar(fila, lista);
                 break;
             case 2:
                 printf("Desenfileirar\n");
                 break;
             case 3:
-                printf("Mostra fila\n");
+                mostrar_fila(fila);
                 break;
             case 0:
                 printf("Voltando...\n");
