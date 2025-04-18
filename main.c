@@ -491,7 +491,24 @@ void enfileirar_prioritario(Lista *lista, Heap *h) {
     printf("Paciente enfileirado com sucesso!\n");
 }
 
+void desenfileirar_prioritario(Heap *h) {
+    if (h->qtde == 0) {
+        printf("Fila vazia.\n");
+        return;
+    }
+    
+    h->dados[0] = h->dados[h->qtde - 1];
+    h->qtde--;
+    peneirar_baixo(h, 0);
+    printf("Paciente desenfileirado com sucesso!\n");
+}
+
 void mostrar_prioritario(Heap *h) {
+    if (h->qtde == 0) {
+        printf("Fila vazia.\n");
+        return;
+    }
+
     for (int i = 0; i < h->qtde; i++) {
         printf("\n%d: Nome: %s\t", i + 1, h->dados[i]->nome);
         printf("Idade: %d\t", h->dados[i]->idade);
@@ -527,7 +544,7 @@ void menu_prioritario(Lista *lista, Heap *heap) {
                 enfileirar_prioritario(lista, heap);
                 break;
             case 2:
-                printf("Desenfileirar\n");
+                desenfileirar_prioritario(heap);
                 break;
             case 3:
                 mostrar_prioritario(heap);
