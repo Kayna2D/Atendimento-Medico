@@ -328,7 +328,30 @@ void enfileirar(Fila *fila, Lista *lista) {
     printf("Paciente enfileirado com sucesso!");
 }
 
+void desinfileirar(Fila *fila) {
+    if (fila->qtde == 0) {
+        printf("Fila vazia.\n");
+        return;
+    }
+    Efila *removido = fila->head;
+    if (fila->qtde == 1) {
+        fila->tail = NULL;
+        fila->head = NULL;
+    } else {
+        //fila->head->proximo->anterior = NULL;      
+        fila->head = fila->head->proximo;
+    }
+    fila->qtde--;
+    printf("Paciente %s desifileirado!", removido->dados->nome);
+    free(removido);
+}
+
 void mostrar_fila(Fila *fila) {
+    if (fila->qtde == 0) {
+        printf("Fila vazia.\n");
+        return;
+    }
+
     Efila *atual = fila->head;
     int cont = 1;
     while (atual != NULL)
@@ -370,7 +393,7 @@ void menu_atendimento(Lista *lista, Fila *fila) {
                 enfileirar(fila, lista);
                 break;
             case 2:
-                printf("Desenfileirar\n");
+                desinfileirar(fila);
                 break;
             case 3:
                 mostrar_fila(fila);
