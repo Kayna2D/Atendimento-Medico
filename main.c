@@ -424,6 +424,87 @@ void menu_atendimento(Lista *lista, Fila *fila) {
 }
 
 // Atendimento prioritário
+int filho_esq(int pai) { 
+    return 2 * pai + 1;
+    }
+
+int filho_dir(int pai) { 
+    return 2 * pai + 2;
+    }
+
+int pai(int filho) { 
+    return (filho - 1) / 2;
+    }
+
+int ultimo_pai(Heap *h) { 
+    return (h->qtde / 2) - 1;
+}
+
+void peneirar_baixo(Heap *h, int pai) {
+    int esq = filho_esq(pai);
+    int dir = filho_dir(pai);
+    int maior = pai;
+
+    if (esq < h->qtde && h->dados[esq]->idade > h->dados[maior]->idade)
+    {
+        maior = esq;
+    }
+
+    if (dir < h->qtde && h->dados[dir]->idade > h->dados[maior]->idade)
+    {
+        maior = dir;
+    }
+
+    if (pai != maior) {
+        Registro *temp = h->dados[pai];
+        h->dados[pai] = h->dados[maior];
+        h->dados[maior] = temp;
+        peneirar_baixo(h, maior);
+    }
+}
+
+void peneirar_cima(Heap *h, int i) {
+    while (i > 0 && h->dados[pai(i)]->idade < h->dados[i]->idade) {
+        Registro *temp = h->dados[pai(i)];
+        h->dados[pai(i)] = h->dados[i];
+        h->dados[i] = temp; 
+        i = pai(i);
+    }
+}
+
+void construir(Heap *h) {
+    int n = ultimo_pai(h);
+    for (int i = n; i >= 0; i--) {
+        peneirar_baixo(h, i);
+    }
+}
+
+void enfileirar_prioritario(Lista *lista, Heap *h) {
+    if (h->qtde == 20) {
+        printf("Capacidade maxima atingida!\n");
+        return;
+    }
+    
+    h->dados[h->qtde] = encontrar_celula(lista)->dados;
+    h->qtde++;
+    peneirar_cima(h, h->qtde - 1);
+    printf("Paciente enfileirado com sucesso!\n");
+}
+
+void mostrar_prioritario(Heap *h) {
+    for (int i = 0; i < h->qtde; i++) {
+        printf("\n%d: Nome: %s\t", i + 1, h->dados[i]->nome);
+        printf("Idade: %d\t", h->dados[i]->idade);
+        printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", h->dados[i]->rg[0], h->dados[i]->rg[1], 
+        h->dados[i]->rg[2], h->dados[i]->rg[3], h->dados[i]->rg[4],
+        h->dados[i]->rg[5], h->dados[i]->rg[6], h->dados[i]->rg[7],
+        h->dados[i]->rg[8]);
+        printf("Data de entrada: %d/%d/%d", h->dados[i]->entrada->dia, h->dados[i]->entrada->mes, 
+        h->dados[i]->entrada->ano);
+    }
+    printf("\n");
+}
+
 void menu_prioritario(Lista *lista, Heap *heap) {
     int opcao = 0;
 
@@ -443,13 +524,13 @@ void menu_prioritario(Lista *lista, Heap *heap) {
 
         switch (opcao) {
             case 1:
-                printf("Enfileirar\n");
+                enfileirar_prioritario(lista, heap);
                 break;
             case 2:
                 printf("Desenfileirar\n");
                 break;
             case 3:
-                printf("Mostrar fila\n");
+                mostrar_prioritario(heap);
                 break;
             case 0:
                 printf("Voltando...\n");
