@@ -121,6 +121,29 @@ void consultar(Lista *lista) {
         paciente->dados->entrada->ano);
 }
 
+void mostrar_lista(Lista *lista){
+    if (lista->inicio == NULL) {
+        printf("\nNao ha paciente cadastrado.\n");
+        return;
+    }
+    
+    Elista *atual = lista->inicio;
+    
+    while(atual != NULL){
+        printf("\nNome: %s\t", atual->dados->nome);
+        printf("Idade: %d\t", atual->dados->idade);
+        printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", atual->dados->rg[0], atual->dados->rg[1], 
+        atual->dados->rg[2], atual->dados->rg[3], atual->dados->rg[4],
+        atual->dados->rg[5], atual->dados->rg[6], atual->dados->rg[7],
+        atual->dados->rg[8]);
+        printf("Data de entrada: %d/%d/%d", atual->dados->entrada->dia, atual->dados->entrada->mes, 
+        atual->dados->entrada->ano);
+
+        atual = atual->proximo;
+    }
+    printf("\n");
+}
+
 void menu_cadastro(Lista *lista) {
     int opcao = 0;
 
@@ -148,7 +171,7 @@ void menu_cadastro(Lista *lista) {
                 consultar(lista);
                 break;
             case 3:
-                printf("Listar\n");
+                mostrar_lista(lista);
                 break;
             case 4:
                 printf("Atualizar\n");
