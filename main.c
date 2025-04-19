@@ -379,7 +379,7 @@ void enfileirar(Fila *fila, Lista *lista, Pilha *pilha) {
     printf("Paciente enfileirado com sucesso!");
 }
 
-void desinfileirar(Fila *fila) {
+void desinfileirar(Fila *fila, Pilha *pilha) {
     if (fila->qtde == 0) {
         printf("Fila vazia.\n");
         return;
@@ -392,9 +392,16 @@ void desinfileirar(Fila *fila) {
         //fila->head->proximo->anterior = NULL;      
         fila->head = fila->head->proximo;
     }
+
+    Operacao *op = malloc(sizeof(Operacao));
+    op->paciente = removido->dados;
+    op->Tipo_Operacao = DESENFILEIRAMENTO;
+    push(pilha, op);
+
     fila->qtde--;
-    printf("Paciente %s desifileirado!", removido->dados->nome);
     free(removido);
+
+    printf("Paciente desifileirado!");
 }
 
 void mostrar_fila(Fila *fila) {
@@ -444,7 +451,7 @@ void menu_atendimento(Lista *lista, Fila *fila, Pilha *pilha) {
                 enfileirar(fila, lista, pilha);
                 break;
             case 2:
-                desinfileirar(fila);
+                desinfileirar(fila, pilha);
                 break;
             case 3:
                 mostrar_fila(fila);
@@ -612,6 +619,8 @@ void push(Pilha *pilha, Operacao *operacao) {
     pilha->topo = nova;
     pilha->qtde++;
 }
+
+
 
 void mostrar_pilha(Pilha *pilha) {
     if (pilha->topo == NULL) {
