@@ -51,10 +51,15 @@ typedef enum {
     DESENFILEIRAMENTO
 } Tipo_Operacao;
 
+typedef struct {
+    Registro* paciente;
+    Tipo_Operacao Tipo_Operacao;
+} Operacao;
+
+
 typedef struct Epilha {
     struct Epilha* anterior;
-    Registro* dados;
-    Tipo_Operacao operacao;
+    Operacao* dados;
     struct Epilha* proximo;
 } Epilha;
 
@@ -62,6 +67,8 @@ typedef struct {
     Epilha* topo;
     int qtde;
 } Pilha;
+
+void push(Pilha *pilha, Operacao *operacao);
 
 Lista *criar_lista(){
     Lista *lista = malloc(sizeof(Lista));
@@ -340,7 +347,7 @@ void menu_cadastro(Lista *lista) {
 }
 
 // Atendimento
-void enfileirar(Fila *fila, Lista *lista) {
+void enfileirar(Fila *fila, Lista *lista, Pilha *pilha) {
     if (lista->inicio == NULL) {
         printf("Nao ha paciente cadastrado.\n");
         return;
@@ -348,6 +355,10 @@ void enfileirar(Fila *fila, Lista *lista) {
 
     Efila *nova = malloc(sizeof(Efila));
     Elista *paciente = encontrar_celula(lista);
+    if (paciente == NULL) {
+        return;
+    }
+    
     nova->dados = paciente->dados;
     nova->proximo = NULL;
 
@@ -359,6 +370,12 @@ void enfileirar(Fila *fila, Lista *lista) {
     }
     fila->tail = nova;
     fila->qtde++;
+
+    Operacao *op = malloc(sizeof(Operacao));
+    op->paciente = nova->dados;
+    op->Tipo_Operacao = ENFILEIRAMENTO;
+    push(pilha, op);
+
     printf("Paciente enfileirado com sucesso!");
 }
 
@@ -405,7 +422,7 @@ void mostrar_fila(Fila *fila) {
     printf("\n");
 }
 
-void menu_atendimento(Lista *lista, Fila *fila) {
+void menu_atendimento(Lista *lista, Fila *fila, Pilha *pilha) {
     int opcao = 0;
 
     do {
@@ -424,7 +441,7 @@ void menu_atendimento(Lista *lista, Fila *fila) {
 
         switch (opcao) {
             case 1:
-                enfileirar(fila, lista);
+                enfileirar(fila, lista, pilha);
                 break;
             case 2:
                 desinfileirar(fila);
@@ -583,6 +600,51 @@ void menu_prioritario(Lista *lista, Heap *heap) {
 }
 
 // Desfazer
+void push(Pilha *pilha, Operacao *operacao) {
+    Epilha *nova = malloc(sizeof(Epilha));
+    Operacao *nova_op = malloc(sizeof(Operacao));
+    *nova_op = *operacao;
+    nova->dados = nova_op;
+    if (pilha->qtde != 0) {
+        nova->proximo = pilha->topo;
+        pilha->topo->anterior = nova;
+    }
+    pilha->topo = nova;
+    pilha->qtde++;
+}
+
+void mostrar_pilha(Pilha *pilha) {
+    if (pilha->topo == NULL) {
+        printf("Nenhuma operacao encontrada.\n");
+        return;
+    }
+
+    Epilha *atual = pilha->topo;
+    int cont = 1;
+    while (atual != NULL) {
+
+        printf("\n%d: Paciente: %s\t", cont, atual->dados->paciente->nome);
+        printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", atual->dados->paciente->rg[0], 
+            atual->dados->paciente->rg[1], 
+            atual->dados->paciente->rg[2], 
+            atual->dados->paciente->rg[3], 
+            atual->dados->paciente->rg[4],
+            atual->dados->paciente->rg[5], 
+            atual->dados->paciente->rg[6], 
+            atual->dados->paciente->rg[7],
+            atual->dados->paciente->rg[8]);
+        if (atual->dados->Tipo_Operacao == ENFILEIRAMENTO) {
+            printf("Tipo de operacao: Enfileiramento");
+        } else {
+            printf("Tipo de operacao: Desenfileiramento");
+        }
+
+        cont++;
+        atual = atual->proximo;  
+}  
+    printf("\n");
+}
+
 void menu_desfazer(Fila *fila, Pilha *pilha) {
     int opcao = 0;
 
@@ -601,7 +663,7 @@ void menu_desfazer(Fila *fila, Pilha *pilha) {
 
         switch (opcao) {
             case 1:
-                printf("Mostrar\n");
+                mostrar_pilha(pilha);
                 break;
             case 2:
                 printf("Desfazer\n");
@@ -648,7 +710,7 @@ int main() {
                 menu_cadastro(lista);
                 break;
             case 2:
-                menu_atendimento(lista, fila);
+                menu_atendimento(lista, fila, pilha);
                 break;
             case 3:
                 menu_prioritario(lista, heap);
