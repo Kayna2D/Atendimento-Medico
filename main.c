@@ -671,21 +671,117 @@ void inserir_ano(Abb *arvore, Registro *paciente) {
 	arvore->qtde++;
 }
 
+void inserir_mes(Abb *arvore, Registro *paciente) {
+    Eabb* novo = malloc(sizeof(Eabb));
+    novo->dados = paciente;
+    novo->filho_dir = NULL;
+    novo->filho_esq = NULL;
 
+	Eabb* anterior = NULL;
+	Eabb* atual = arvore->raiz;
+
+	while(atual != NULL){
+		anterior = atual;
+		if(paciente->entrada->mes <= anterior->dados->entrada->mes){
+			atual = atual->filho_esq;
+		}else{
+			atual = atual->filho_dir;
+		}
+	}
+
+	if(anterior != NULL){
+		if(paciente->entrada->mes <= anterior->dados->entrada->mes){
+			anterior->filho_esq = novo;
+		}else{
+			anterior->filho_dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+}
+
+void inserir_dia(Abb *arvore, Registro *paciente) {
+    Eabb* novo = malloc(sizeof(Eabb));
+    novo->dados = paciente;
+    novo->filho_dir = NULL;
+    novo->filho_esq = NULL;
+
+	Eabb* anterior = NULL;
+	Eabb* atual = arvore->raiz;
+
+	while(atual != NULL){
+		anterior = atual;
+		if(paciente->entrada->dia <= anterior->dados->entrada->dia){
+			atual = atual->filho_esq;
+		}else{
+			atual = atual->filho_dir;
+		}
+	}
+
+	if(anterior != NULL){
+		if(paciente->entrada->dia <= anterior->dados->entrada->dia){
+			anterior->filho_esq = novo;
+		}else{
+			anterior->filho_dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+}
+
+void inserir_idade(Abb *arvore, Registro *paciente) {
+    Eabb* novo = malloc(sizeof(Eabb));
+    novo->dados = paciente;
+    novo->filho_dir = NULL;
+    novo->filho_esq = NULL;
+
+	Eabb* anterior = NULL;
+	Eabb* atual = arvore->raiz;
+	while(atual != NULL){
+		anterior = atual;
+		if(paciente->idade <= anterior->dados->idade){
+			atual = atual->filho_esq;
+		}else{
+			atual = atual->filho_dir;
+		}
+	}
+
+	if(anterior != NULL){
+		if(paciente->idade <= anterior->dados->idade){
+			anterior->filho_esq = novo;
+		}else{
+			anterior->filho_dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+}
 
 void menu_pesquisa(Lista *lista) {
     if (lista->qtde == 0) {
         printf("Nenhum registro encontrado.\n");
         return;
     } 
-    Abb* arvore_ano = NULL;
+     Abb* arvore_ano = NULL;
+     Abb* arvore_mes = NULL;
+     Abb* arvore_dia = NULL;
+     Abb* arvore_idade = NULL;
 
     if (arvore_ano == NULL) {
         arvore_ano = criar_arvore();
+        arvore_mes = criar_arvore();
+        arvore_dia = criar_arvore();
+        arvore_idade = criar_arvore();
 
         Elista* atual = lista->inicio;
         while (atual != NULL) {
             inserir_ano(arvore_ano, atual->dados);
+            inserir_mes(arvore_mes, atual->dados);
+            inserir_dia(arvore_dia, atual->dados);
+            inserir_idade(arvore_idade, atual->dados);
             atual = atual->proximo;
         }
         
@@ -709,17 +805,17 @@ void menu_pesquisa(Lista *lista) {
         clearBuffer();
 
         switch (opcao) {
-            case 1:              
+            case 1:
                 in_ordem(arvore_ano->raiz);
                 break;
             case 2:
-                printf("mes");
+                in_ordem(arvore_mes->raiz);
                 break;
             case 3:
-                printf("dia");
+                in_ordem(arvore_dia->raiz);
                 break;
             case 4:
-                printf("idade");
+                in_ordem(arvore_idade->raiz);
                 break;
             case 0:
                 printf("Voltando...\n");
