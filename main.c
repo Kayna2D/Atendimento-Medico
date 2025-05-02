@@ -68,6 +68,17 @@ typedef struct {
     int qtde;
 } Pilha;
 
+typedef struct Eabb {
+    Registro* dados;
+    struct Eabb* filho_esq;
+    struct Eabb* filho_dir;
+} Eabb;
+
+typedef struct {
+    Eabb* raiz;
+    int qtde;
+} Abb;
+
 void push(Pilha *pilha, Operacao *operacao);
 
 Lista *criar_lista(){
@@ -97,6 +108,14 @@ Pilha *criar_pilha(){
     pilha->topo = NULL;
     pilha->qtde = 0;
     return pilha;
+}
+
+Abb *criar_arvore(){
+	Abb* arvore = malloc(sizeof(Abb));
+	arvore->raiz = NULL;
+	arvore->qtde = 0;
+
+	return arvore;
 }
 
 // Cadastro
@@ -606,6 +625,50 @@ void menu_prioritario(Lista *lista, Heap *heap) {
     return;
 }
 
+// Pesquisa
+void menu_pesquisa(Lista *lista, Abb *arvore) {
+    int opcao = 0;
+
+    do {
+        printf("\n");
+        printf("Pesquisa\n");
+        printf("\n");
+        printf("1 - Filtrar por ano\n");
+        printf("2 - Filtrar por mes\n");
+        printf("3 - Filtrar por dia\n");
+        printf("4 - Filtrar por idade\n");
+        printf("0 - Voltar\n");
+        printf("\n");
+        printf("Escolha uma opcao: ");
+
+        scanf("%d", &opcao);
+        clearBuffer();
+
+        switch (opcao) {
+            case 1:
+                printf("ano");
+                break;
+            case 2:
+                printf("mes");
+                break;
+            case 3:
+                printf("dia");
+                break;
+            case 4:
+                printf("idade");
+                break;
+            case 0:
+                printf("Voltando...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                break;
+        }
+        
+    } while (opcao != 0);
+    return;
+}
+
 // Desfazer
 void push(Pilha *pilha, Operacao *operacao) {
     Epilha *nova = malloc(sizeof(Epilha));
@@ -620,7 +683,24 @@ void push(Pilha *pilha, Operacao *operacao) {
     pilha->qtde++;
 }
 
+Operacao *pop(Pilha *pilha) {
+    if (pilha->topo == NULL) {
+        return NULL;
+    }
+    
+    Epilha *removida = pilha->topo;
+    if (pilha->qtde == 1) {
+        pilha->topo = NULL;
+    } else {
+        pilha->topo->anterior->proximo = NULL;
+        pilha->topo = pilha->topo->anterior;
+    }
+    Operacao *op = removida->dados;
+    free(removida);
+    pilha->qtde--;
 
+    return op;
+}
 
 void mostrar_pilha(Pilha *pilha) {
     if (pilha->topo == NULL) {
@@ -629,10 +709,10 @@ void mostrar_pilha(Pilha *pilha) {
     }
 
     Epilha *atual = pilha->topo;
-    int cont = 1;
+    printf("Mais recente:\n");
     while (atual != NULL) {
 
-        printf("\n%d: Paciente: %s\t", cont, atual->dados->paciente->nome);
+        printf("Paciente: %s\t", atual->dados->paciente->nome);
         printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", atual->dados->paciente->rg[0], 
             atual->dados->paciente->rg[1], 
             atual->dados->paciente->rg[2], 
@@ -643,15 +723,81 @@ void mostrar_pilha(Pilha *pilha) {
             atual->dados->paciente->rg[7],
             atual->dados->paciente->rg[8]);
         if (atual->dados->Tipo_Operacao == ENFILEIRAMENTO) {
-            printf("Tipo de operacao: Enfileiramento");
+            printf("Tipo de operacao: Enfileiramento\n");
         } else {
-            printf("Tipo de operacao: Desenfileiramento");
+            printf("Tipo de operacao: Desenfileiramento\n");
         }
 
-        cont++;
         atual = atual->proximo;  
 }  
     printf("\n");
+}
+
+void desfazer(Pilha *pilha, Fila *fila) {
+    Operacao *op = pop(pilha);
+    if (op == NULL) {
+        printf("Nenhuma operacao armazenada.\n");
+        return;
+    }
+
+    char resp;
+    printf("\nPaciente: %s\t", op->paciente->nome);
+    printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", op->paciente->rg[0], 
+        op->paciente->rg[1], 
+        op->paciente->rg[2], 
+        op->paciente->rg[3], 
+        op->paciente->rg[4],
+        op->paciente->rg[5], 
+        op->paciente->rg[6], 
+        op->paciente->rg[7],
+        op->paciente->rg[8]);
+    if (op->Tipo_Operacao == ENFILEIRAMENTO) {
+        printf("Tipo de operacao: Enfileiramento\n");
+    } else {
+        printf("Tipo de operacao: Desenfileiramento\n");
+    }
+    printf("Deseja desfazer a operacao acima? (S/N) ");
+    scanf(" %c", &resp);
+    clearBuffer();
+
+    if (resp == 'S' || resp == 's') {
+        if (op->Tipo_Operacao == ENFILEIRAMENTO) {
+            Efila *anterior = NULL;
+            Efila *atual = fila->head;
+        
+            while (atual->proximo != NULL) {
+                anterior = atual;
+                atual = atual->proximo;
+            }
+        
+            if (anterior == NULL) {
+                fila->head = NULL;
+                fila->tail = NULL;
+            } else {
+                anterior->proximo = NULL;
+                fila->tail = anterior;
+            }
+        
+            free(atual);
+            fila->qtde--;
+        } else {
+            Efila *nova = malloc(sizeof(Efila));
+            nova->dados = op->paciente;
+            nova->proximo = fila->head;
+            fila->head = nova;
+            
+            if (fila->qtde == 0) {
+                fila->tail = nova;
+            } 
+            
+            fila->qtde++;
+        }
+        free(op);
+        printf("Operacao desfeita com sucesso!\n");
+    } else {
+        push(pilha, op);
+        printf("Cancelando...\n");
+    }
 }
 
 void menu_desfazer(Fila *fila, Pilha *pilha) {
@@ -675,7 +821,7 @@ void menu_desfazer(Fila *fila, Pilha *pilha) {
                 mostrar_pilha(pilha);
                 break;
             case 2:
-                printf("Desfazer\n");
+                desfazer(pilha, fila);
                 break;
             case 0:
                 printf("Voltando...\n");
@@ -694,6 +840,7 @@ int main() {
     Fila *fila = criar_fila();
     Heap *heap = criar_heap();
     Pilha *pilha = criar_pilha();
+    Abb *arvore = criar_arvore();
     int opcao = 0;
 
     do {
@@ -725,7 +872,7 @@ int main() {
                 menu_prioritario(lista, heap);
                 break;
             case 4:
-                printf("Pesquisa\n");
+                menu_pesquisa(lista, arvore);
                 break;
             case 5:
                 menu_desfazer(fila, pilha);
