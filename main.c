@@ -626,7 +626,71 @@ void menu_prioritario(Lista *lista, Heap *heap) {
 }
 
 // Pesquisa
-void menu_pesquisa(Lista *lista, Abb *arvore) {
+void in_ordem(Eabb *raiz) {
+    if (raiz != NULL) {
+        in_ordem(raiz->filho_esq);
+        printf("\nNome: %s\t", raiz->dados->nome);
+        printf("Idade: %d\t", raiz->dados->idade);
+        printf("RG: %c%c.%c%c%c.%c%c%c-%c\t", raiz->dados->rg[0], raiz->dados->rg[1], 
+        raiz->dados->rg[2], raiz->dados->rg[3], raiz->dados->rg[4],
+        raiz->dados->rg[5], raiz->dados->rg[6], raiz->dados->rg[7],
+        raiz->dados->rg[8]);
+        printf("Data de entrada: %d/%d/%d", raiz->dados->entrada->dia, raiz->dados->entrada->mes, 
+        raiz->dados->entrada->ano);
+        in_ordem(raiz->filho_dir);
+    }
+}
+
+void inserir_ano(Abb *arvore, Registro *paciente) {
+    Eabb* novo = malloc(sizeof(Eabb));
+    novo->dados = paciente;
+    novo->filho_dir = NULL;
+    novo->filho_esq = NULL;
+
+	Eabb* anterior = NULL;
+	Eabb* atual = arvore->raiz;
+
+	while(atual != NULL){
+		anterior = atual;
+		if(paciente->entrada->ano <= anterior->dados->entrada->ano){
+			atual = atual->filho_esq;
+		}else{
+			atual = atual->filho_dir;
+		}
+	}
+
+	if(anterior != NULL){
+		if(paciente->entrada->ano <= anterior->dados->entrada->ano){
+			anterior->filho_esq = novo;
+		}else{
+			anterior->filho_dir = novo;
+		}
+	}else{
+		arvore->raiz = novo;
+	}
+	arvore->qtde++;
+}
+
+
+
+void menu_pesquisa(Lista *lista) {
+    if (lista->qtde == 0) {
+        printf("Nenhum registro encontrado.\n");
+        return;
+    } 
+    Abb* arvore_ano = NULL;
+
+    if (arvore_ano == NULL) {
+        arvore_ano = criar_arvore();
+
+        Elista* atual = lista->inicio;
+        while (atual != NULL) {
+            inserir_ano(arvore_ano, atual->dados);
+            atual = atual->proximo;
+        }
+        
+    }
+    
     int opcao = 0;
 
     do {
@@ -645,8 +709,8 @@ void menu_pesquisa(Lista *lista, Abb *arvore) {
         clearBuffer();
 
         switch (opcao) {
-            case 1:
-                printf("ano");
+            case 1:              
+                in_ordem(arvore_ano->raiz);
                 break;
             case 2:
                 printf("mes");
@@ -840,7 +904,6 @@ int main() {
     Fila *fila = criar_fila();
     Heap *heap = criar_heap();
     Pilha *pilha = criar_pilha();
-    Abb *arvore = criar_arvore();
     int opcao = 0;
 
     do {
@@ -872,7 +935,7 @@ int main() {
                 menu_prioritario(lista, heap);
                 break;
             case 4:
-                menu_pesquisa(lista, arvore);
+                menu_pesquisa(lista);
                 break;
             case 5:
                 menu_desfazer(fila, pilha);
