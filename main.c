@@ -832,12 +832,12 @@ void menu_pesquisa(Lista *lista) {
 // Desfazer
 void push(Pilha *pilha, Operacao *operacao) {
     Epilha *nova = malloc(sizeof(Epilha));
-    Operacao *nova_op = malloc(sizeof(Operacao));
-    *nova_op = *operacao;
-    nova->dados = nova_op;
-    if (pilha->qtde != 0) {
-        nova->proximo = pilha->topo;
-        pilha->topo->anterior = nova;
+    nova->dados = operacao;
+    nova->anterior = NULL;
+    nova->proximo = NULL;
+    if (pilha->qtde > 0) {
+        pilha->topo->proximo = nova;
+        nova->anterior = pilha->topo;
     }
     pilha->topo = nova;
     pilha->qtde++;
@@ -849,13 +849,14 @@ Operacao *pop(Pilha *pilha) {
     }
     
     Epilha *removida = pilha->topo;
+    Operacao *op = removida->dados;
+
     if (pilha->qtde == 1) {
         pilha->topo = NULL;
     } else {
         pilha->topo->anterior->proximo = NULL;
         pilha->topo = pilha->topo->anterior;
     }
-    Operacao *op = removida->dados;
     free(removida);
     pilha->qtde--;
 
@@ -888,7 +889,7 @@ void mostrar_pilha(Pilha *pilha) {
             printf("Tipo de operacao: Desenfileiramento\n");
         }
 
-        atual = atual->proximo;  
+        atual = atual->anterior;  
 }  
     printf("\n");
 }
