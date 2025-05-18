@@ -997,6 +997,95 @@ void menu_desfazer(Fila *fila, Pilha *pilha) {
 }
 
 // C/S
+void salvar (Lista *lista) {
+    if (lista->qtde == 0) {
+        printf("Nao ha pacientes para salvar.\n");
+        return;
+    }
+
+    FILE *f = fopen("pacientes.txt", "w");
+    if (f == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    Elista *atual = lista->inicio;
+    while (atual != NULL) {
+        fprintf(f, "%s\n", atual->dados->nome);
+        fprintf(f, "%d\n", atual->dados->idade);
+        fprintf(f, "%s\n", atual->dados->rg);
+        fprintf(f, "%d\n", atual->dados->entrada->dia);
+        fprintf(f, "%d\n", atual->dados->entrada->mes);
+        fprintf(f, "%d\n", atual->dados->entrada->ano);
+        
+        atual = atual->proximo;
+    }
+
+    fclose(f);
+    printf("Dados salvos com sucesso!\n");
+} 
+
+void carregar (Lista *lista) {
+    FILE *f = fopen("pacientes.txt", "r");
+    if (f == NULL) {
+        printf("Erro ao abrir o arquivo.\n");
+        return;
+    }
+
+    while (lista->inicio != NULL) {
+        Elista *temp = lista->inicio;
+        lista->inicio = lista->inicio->proximo;
+        free(temp->dados->entrada);
+        free(temp->dados);
+        free(temp);
+        lista->qtde--;
+    }
+
+    Registro* registros[1000]; 
+    Data* datas[1000];
+    int total = 0;
+    char linha[500];
+
+    while (fgets(linha, sizeof(linha), f) != NULL) {
+        registros[total] = malloc(sizeof(Registro));
+        datas[total] = malloc(sizeof(Data));
+        
+        linha[strcspn(linha, "\n")] = '\0';
+        strcpy(registros[total]->nome, linha);
+        
+        fgets(linha, sizeof(linha), f);
+        registros[total]->idade = atoi(linha);
+        
+        fgets(linha, sizeof(linha), f);
+        linha[strcspn(linha, "\n")] = '\0';
+        strcpy(registros[total]->rg, linha);
+        
+        fgets(linha, sizeof(linha), f);
+        datas[total]->dia = atoi(linha);
+        
+        fgets(linha, sizeof(linha), f);
+        datas[total]->mes = atoi(linha);
+        
+        fgets(linha, sizeof(linha), f);
+        datas[total]->ano = atoi(linha);
+        
+        registros[total]->entrada = datas[total];
+        total++;
+    }
+    
+    fclose(f);
+
+    for (int i = total - 1; i >= 0; i--) {
+        Elista *nova_celula = malloc(sizeof(Elista));
+        nova_celula->dados = registros[i];
+        nova_celula->proximo = lista->inicio;
+        lista->inicio = nova_celula;
+        lista->qtde++;
+    }
+
+    printf("Dados carregados com sucesso!\n");
+} 
+
 void menu_cs(Lista *lista) {
     
     int opcao = 0;
@@ -1016,10 +1105,10 @@ void menu_cs(Lista *lista) {
 
         switch (opcao) {
             case 1:
-                printf("Carregar");
+                carregar(lista);
                 break;
             case 2:
-                printf("Salvar");
+                salvar(lista);
                 break;
             case 0:
                 printf("Voltando...\n");
