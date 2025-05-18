@@ -1243,8 +1243,8 @@ int main() {
             case 7:
                 printf("\n");
                 printf("Nome: Kayna de Deus\n");
-                printf("Ciclo: 4º\n");
-                printf("Ciencia da Computacao\n");
+                printf("Ciclo: 4\n");
+                printf("Curso: Ciencia da Computacao\n");
                 printf("Data: 19/05/2025\n");
                 break;
             case 0:
