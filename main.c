@@ -996,6 +996,43 @@ void menu_desfazer(Fila *fila, Pilha *pilha) {
     return;
 }
 
+// C/S
+void menu_cs(Lista *lista) {
+    
+    int opcao = 0;
+
+    do {
+        printf("\n");
+        printf("Carregar / Salvar\n");
+        printf("\n");
+        printf("1 - Carregar\n");
+        printf("2 - Salvar\n");
+        printf("0 - Voltar\n");
+        printf("\n");
+        printf("Escolha uma opcao: ");
+
+        scanf("%d", &opcao);
+        clearBuffer();
+
+        switch (opcao) {
+            case 1:
+                printf("Carregar");
+                break;
+            case 2:
+                printf("Salvar");
+                break;
+            case 0:
+                printf("Voltando...\n");
+                break;
+            default:
+                printf("Opcao invalida!\n");
+                break;
+        }
+        
+    } while (opcao != 0);
+    return;
+}
+
 int main() {
     Lista *lista = criar_lista();
     Fila *fila = criar_fila();
@@ -1038,7 +1075,7 @@ int main() {
                 menu_desfazer(fila, pilha);
                 break;
             case 6:
-                printf("C/S\n");
+                menu_cs(lista);
                 break;
             case 7:
                 printf("Sobre\n");
